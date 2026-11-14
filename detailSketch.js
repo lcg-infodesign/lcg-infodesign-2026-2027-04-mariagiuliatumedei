@@ -121,7 +121,8 @@ function disegnaLunghezza(x, w, qX) {
   }
 }
 
-//anteprima di una singola onda, disegnata solo col bordo bianco
+//sample dei simboli per la legenda, rappresentati solo col bordo bianco
+//una singola onda
 function legendaOnda(x, y, larghezza) {
   noFill();
   stroke(COL_TESTI);
@@ -134,7 +135,7 @@ function legendaOnda(x, y, larghezza) {
   noStroke();
 }
 
-//anteprima di una singola goccia, disegnata solo col bordo bianco
+//una singola goccia
 function legendaGoccia(x, y, s) {
   let ctx = drawingContext;
   ctx.strokeStyle = COL_TESTI;
@@ -148,24 +149,23 @@ function legendaGoccia(x, y, s) {
   ctx.stroke();
 }
 
-//barra: una sola forma chiusa, con il bordo superiore ondulato
-//una onda ogni "unaOnda" pixel; il bordo parte sempre dall'inizio di un'onda
+//grafico per le lunghezze (rettangolo con bordo superiore onludato, per simulare la forma del fiume)
 function barraOndulata(x, y, lunghezza, unaOnda, colore) {
   noStroke();
   fill(colore);
   beginShape();
-  vertex(x, y + 30);                            //angolo in basso a sinistra
+  vertex(x, y + 30);  //vertice in basso a sinistra nella barra                          
   for (let px = 0; px <= lunghezza; px += 3) {
-    vertex(x + px, y - cos(px / unaOnda * TWO_PI) * 3);
+    vertex(x + px, y - cos(px / unaOnda * TWO_PI) * 3); //il ciclo avanza di 3 pixel alal volta creando le onde
   }
-  vertex(x + lunghezza, y + 30);                //angolo in basso a destra
+  vertex(x + lunghezza, y + 30);  //angolo in basso a destra nella barra              
   endShape(CLOSE);
 }
 
 function disegnaArea(x, w, qX) {
   let y = height * 0.53;
 
-  //titolo in alto a sinistra
+  //titolo grafico aree in alto a sinistra
   noStroke();
   fill(COL_TESTI);
   textSize(18);
@@ -181,9 +181,9 @@ function disegnaArea(x, w, qX) {
   text('≈ ' + round(maxArea / NUM_GOCCE).toLocaleString('en') + ' km²', x + w - 40, y + 7);
 
   //gocce: 10 righe da 20
-  let passo = w / GOCCE_PER_RIGA;
-  let s = passo * 0.75;
-  let piene = round(river.area / maxArea * NUM_GOCCE);   //gocce colorate
+  let passo = w / GOCCE_PER_RIGA; //ogni goccia ha quindi una cella di 30px
+  let s = passo * 0.75; //s è larghezza effettiva di una goccia, occupa 22 px, quindi ne ha 8 di margine laterale
+  let piene = round(river.area / maxArea * NUM_GOCCE);   //gocce colorate per arrotondamento
 
   for (let i = 0; i < NUM_GOCCE; i++) {
     let cx = x + (i % GOCCE_PER_RIGA) * passo + passo / 2;
@@ -191,28 +191,28 @@ function disegnaArea(x, w, qX) {
     goccia(cx, cy, s, i < piene ? river.colore : COL_GRIGIO);
   }
 
-  //la domanda non compare se questo fiume ha l'area maggiore
+  //la domanda non compare se questo è il fiume che ha l'area maggiore
   if (river.area < maxArea) {
     domanda('Which river has the biggest area?', qX, y + 68,
       'The largest river among those analysed is the ' + nomeArea + ', ' + maxArea.toLocaleString('en') + ' km².');
   }
 }
 
-//goccia: punta appuntita in alto e pancia tonda in basso
+//disegno della goccia
 function goccia(cx, cy, s, colore) {
   let ctx = drawingContext;
   ctx.fillStyle = colore;
   ctx.beginPath();
-  ctx.moveTo(cx, cy - s * 0.7);         //punta
-  ctx.lineTo(cx + s * 0.5, cy);         //fianco destro dritto
-  ctx.arc(cx, cy, s * 0.5, 0, PI);      //pancia tonda
-  ctx.lineTo(cx, cy - s * 0.7);         //fianco sinistro dritto
+  ctx.moveTo(cx, cy - s * 0.7);         
+  ctx.lineTo(cx + s * 0.5, cy);         
+  ctx.arc(cx, cy, s * 0.5, 0, PI);      
+  ctx.lineTo(cx, cy - s * 0.7);        
   ctx.closePath();
   ctx.fill();
 }
 
-//disegna una domanda e controlla se il mouse è sopra
-function domanda(testo, x, y, risposta) {
+//domanda laterale
+function domanda(testo, x, y, risposta) { //crea la domanda di fianco al grafico, preparando la risposta se il mouse ci passa sopra
   noStroke();
   textSize(14);
   textStyle(BOLD);
@@ -243,12 +243,12 @@ function disegnaTooltip() {
   text(hoverQ, x + 10, y + 10, 300, 50);
 }
 
-function colorePerMedia(media) {
+function colorePerMedia(media) { //attribuire lo stesso colore della pagina precedente (sulle temperature)
   let indice = 0;
-  for (let i = 0; i < SOGLIE.length; i++) {
+  for (let i = 0; i < SOGLIE.length; i++) { //analizza le tre soglie (stabilite nella pagine precedente)
     if (media > SOGLIE[i]) indice = i + 1;
   }
-  return COLORI_CLASSI[indice];
+  return COLORI_CLASSI[indice]; //restituisce il colore delle classi precedenti
 }
 
 function windowResized() {
